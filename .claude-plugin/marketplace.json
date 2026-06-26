@@ -1,0 +1,23 @@
+{
+  "name": "berserk",
+  "owner": {
+    "name": "Lucas Castro"
+  },
+  "metadata": {
+    "description": "Marketplace de herramientas de flujo de trabajo de desarrollo.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "berserk-arquitect",
+      "source": "./plugins/berserk-arquitect",
+      "description": "Fase de arquitectura para proyectos nuevos: interroga el diseno y genera biblia.md + CLAUDE.md sin solapamiento, con fases reanudables y secciones vivas de bugs/steps/mejoras.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Lucas Castro"
+      },
+      "license": "MIT",
+      "keywords": ["architecture", "planning", "documentation", "claude-md", "workflow"]
+    }
+  ]
+}
