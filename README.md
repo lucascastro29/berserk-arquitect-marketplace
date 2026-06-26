@@ -81,7 +81,7 @@ El skill te grillea. No dispara veinte preguntas sueltas: ataca **una falla estr
 
 Cómo es un buen grill:
 
-- **Concreto y adversarial, no genérico.** No "¿cómo monetiza?" sino "decís precio único, pero ¿qué pasa cuando saques una skin nueva post-lanzamiento — los que ya compraron la reciben gratis o nunca más vendés una skin?".
+- **Concreto y adversarial, no genérico.** No "¿cómo monetiza?" sino algo que ataque el borde puntual: "decís precio único, pero cuando agregues contenido nuevo post-lanzamiento, ¿los que ya pagaron lo reciben gratis o nunca más vendés nada?".
 - **Persigue las respuestas esquivadas.** Si contestás con un requisito nuevo en vez de responder, vuelve sobre la pregunta original.
 - **Confronta con evidencia.** Si hay repos o docs previos, los lee y usa las contradicciones reales como munición.
 - **Cierra explícitamente.** Cuando converge, recita el diseño final en una pasada y pide **confirmación literal** antes de generar nada.
@@ -177,12 +177,9 @@ Separadas a propósito, para que un bug no se confunda con una etapa planificada
 
 ## 10. Regla de modularización
 
-Las tareas repetibles con workflow propio **no** viven como sección de la biblia: se sacan a su propio MD y se referencian desde ella.
+Las tareas repetibles con workflow propio **no** viven como sección de la biblia: se sacan a su propio MD (con el formato de `assets/modulo.template.md`) y se referencian desde ella.
 
-En este proyecto:
-
-- **`SKIN_GENERATOR.md`** — flujo para crear una skin nueva (existe).
-- **`GACHA_BANNER_GENERATOR.md`** — flujo para dar de alta un banner/temporada (a crear en Fase 3).
+Sirve para cualquier flujo que repitas con un paso a paso propio: generación de un tipo de asset, alta de un registro recurrente, un proceso de despliegue, un checklist de QA, etc. La regla: si lo vas a hacer muchas veces y tiene su propia secuencia, va a su MD.
 
 Se disparan explícitamente: "generá un md reutilizable del flujo X". El skill no los crea por su cuenta.
 
@@ -194,22 +191,22 @@ Si pedís "pasame la biblia a docx" o "una versión presentable para los devs", 
 
 ---
 
-## 12. Ejemplo completo, sacado de este proyecto
+## 12. Ejemplo de flujo
 
-Así se vio el flujo real al formalizar **Routine Universe** (codename del repo: `berserk`):
+Así se ve el flujo típico al formalizar un proyecto:
 
 1. **Invocación:** `/anthropic-skills:berserk-arquitect trabajemos sobre este repo`.
-2. **Auditoría:** el skill leyó el repo y detectó que el `CLAUDE.md` monolítico decía "FASE 0 monolito" mientras el código ya estaba migrado a React. Contradicción → munición.
-3. **Grill, una falla por ronda:**
-   - *Ronda 1 — negocio:* "Decís 'skins desbloqueables' y a la vez 'todas incluidas en la compra'. No pueden ser ciertas las dos. ¿El catálogo es fijo o expandible y monetizable?" → se eligió expandible.
-   - *Ronda 2 — funnel:* "¿app gratis o paga?" → gratis.
-   - *Rondas 3-4 — gacha:* "¿con qué se paga la tirada?" y "¿qué hay en el pozo y qué pasa con los duplicados?" → híbrido con tirada gratis por entrenar + packs pagos; duplicados → fragmentos.
-   - *Ronda 5 — alcance:* el usuario sumó 3D, pets, ranking, temporadas de golpe → el skill frenó el scope creep y forzó la pregunta: "¿app de fitness con gancho gacha, o juego gacha con tema fitness?" → fitness con gancho, **dividido por fases**.
-   - *Ronda IP:* "No podés vender skins de Berserk/Evangelion — es IP ajena. ¿Confirmás pivote a IP 100% original?" → sí, con excepción de skins privadas whitelisted.
-4. **Cierre explícito:** el skill recitó el diseño final y pidió confirmación literal antes de tocar archivos.
-5. **Cristalización:** generó `biblia.md` (verdad) + reescribió `CLAUDE.md` (corto), y agregó el gate de copyright a `SKIN_GENERATOR.md`.
+2. **Auditoría:** el skill lee el repo y los docs existentes y detecta contradicciones entre lo que el doc afirma y lo que el código hace. Esas contradicciones son la primera munición del interrogatorio.
+3. **Grill, una falla por ronda** (siempre lo más load-bearing primero):
+   - *Modelo de negocio:* expone una contradicción en cómo se monetiza y fuerza a elegir un camino único.
+   - *Borde del sistema / usuario:* quién lo usa, cómo entra, qué espera.
+   - *Modelo de datos:* qué invariantes deben cumplirse siempre y cuáles nunca.
+   - *Alcance:* cuando se acumulan requisitos nuevos sin cerrar bordes, el skill **frena el scope creep** y obliga a definir el centro de gravedad del producto antes de seguir.
+   - *Riesgos transversales:* legales, de stack, de costo — los que pueden hundir el proyecto si quedan abiertos.
+4. **Cierre explícito:** el skill recita el diseño final en una pasada y pide **confirmación literal** antes de tocar archivos. No genera nada con bordes abiertos.
+5. **Cristalización:** genera `biblia.md` (la verdad) y `CLAUDE.md` (la operativa corta), respetando el cero-solapamiento.
 
-El resultado: cada decisión load-bearing quedó cerrada *antes* de codear, y documentada en el archivo correcto.
+El resultado: cada decisión load-bearing queda cerrada *antes* de codear, y documentada en el archivo correcto.
 
 ---
 
