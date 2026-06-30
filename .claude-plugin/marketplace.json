@@ -11,8 +11,8 @@
     {
       "name": "berserk-arquitect",
       "source": "./plugins/berserk-arquitect",
-      "description": "Fase de arquitectura para proyectos nuevos: interroga el diseno y genera biblia.md + CLAUDE.md sin solapamiento, con fases reanudables y secciones vivas de bugs/steps/mejoras.",
-      "version": "0.2.0",
+      "description": "Fase de arquitectura para proyectos nuevos: interroga el diseno y genera biblia.md + CLAUDE.md sin solapamiento, con fases reanudables y secciones vivas de bugs/steps/mejoras. Integracion opcional con Notion / ClickUp.",
+      "version": "0.3.0",
       "author": {
         "name": "Lucas Castro"
       },

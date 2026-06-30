@@ -1,7 +1,7 @@
 {
   "name": "berserk-arquitect",
-  "version": "0.2.0",
-  "description": "Fase de arquitectura para un proyecto de desarrollo: interroga la logica de negocio y software y genera biblia.md + CLAUDE.md sin solapamiento, con fases reanudables y secciones vivas de bugs, steps y mejoras tecnicas.",
+  "version": "0.3.0",
+  "description": "Fase de arquitectura para un proyecto de desarrollo: interroga la logica de negocio y software y genera biblia.md + CLAUDE.md sin solapamiento, con fases reanudables y secciones vivas de bugs, steps y mejoras tecnicas. Integracion opcional bidireccional con Notion / ClickUp.",
   "author": {
     "name": "Lucas Castro"
   },

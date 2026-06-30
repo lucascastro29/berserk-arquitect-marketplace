@@ -2,6 +2,37 @@
 
 Formato basado en "issue detectado → solución". Las versiones siguen [SemVer](https://semver.org/lang/es/).
 
+## [0.3.0] — 2026-06-30
+
+### Issue detectado — La biblia no se conectaba con el tablero donde el equipo ejecuta
+
+**Síntoma:** el roadmap (etapas/work-orders) y las secciones vivas (BUGS, MEJORAS TÉCNICAS)
+vivían solo en `biblia.md`. Para llevar el avance a un gestor de tareas (Notion / ClickUp)
+había que copiar tareas a mano y, peor, el estado de ejecución del tablero no volvía a la
+biblia. Eso o desincronizaba el plan, o convertía al tablero en una segunda fuente de verdad.
+
+**Causa raíz:** el skill no tenía ningún puente con herramientas externas, y un puente naíf
+(sync simétrico) habría roto el principio de fuente única que sostiene todo el método.
+
+### Solución — Integración bidireccional asimétrica con Notion / ClickUp (opcional)
+
+- **`SKILL.md`:** nuevo **Paso 7 — Integración con gestor de tareas (Notion / ClickUp)**.
+  Bidireccional pero **asimétrica**: la biblia es dueña de estructura y contenido (push
+  biblia → tablero); el tablero es dueño del estado de ejecución (pull tablero → biblia).
+  Cada dato tiene un solo dueño, así no hay drift. Mapeo etapa→tarea / work-order→subtarea;
+  las tres secciones vivas se distinguen por **label** (`steps`/`bugs`/`mejoras`);
+  reconciliación por **ID de correlación** estable, no por título. Atado a la guardia de
+  frescura. Parches a la descripción, "Qué produce" y "Qué NO hace".
+- **`assets/biblia.template.md`:** nueva sección **"Integración con gestor de tareas"** con
+  la config estable del vínculo (conector, destino, label, mapeo de estados).
+- **`assets/CLAUDE.template.md`:** nuevo bloque **"Estado de sincronización con tablero"**
+  con el estado mutable de la sync. Cero-solapamiento con la config de la biblia.
+- **`README.md`:** nueva §11.5 documentando la integración + línea en el cheat sheet.
+
+### Cambios
+
+- Bump de versión del plugin: `0.2.0` → `0.3.0` (`plugin.json` y entrada en `marketplace.json`).
+
 ## [0.2.0] — 2026-06-26
 
 ### Issue detectado — Drift de artefactos derivados de `biblia.md`

@@ -29,6 +29,7 @@ Y, **bajo demanda** (no automáticamente):
 
 - **Módulos de tarea** — archivos MD tipo `SKIN_GENERATOR.md` para flujos repetibles. El skill deja escrita la *regla* de cuándo crearlos; vos los disparás después.
 - **Export docx** — un snapshot presentable de la biblia para leer cómodo o pasar a alguien. No es un archivo vivo: es una foto con fecha.
+- **Vínculo con Notion / ClickUp** — una conexión bidireccional opcional entre la biblia y un tablero externo. La biblia empuja etapas, work-orders, bugs y mejoras como tareas, y lee de vuelta el estado de ejecución. Ver §11.5.
 
 ---
 
@@ -191,6 +192,19 @@ Si pedís "pasame la biblia a docx" o "una versión presentable para los devs", 
 
 ---
 
+## 11.5. Integración con gestor de tareas (Notion / ClickUp)
+
+Opcional y bajo demanda. Se dispara con `/anthropic-skills:berserk-arquitect integrá Notion en la biblia` (o ClickUp). Vincula la biblia con un tablero externo de forma **bidireccional pero asimétrica**, que es lo que evita el drift: cada dato tiene un solo dueño.
+
+| Dueño | De qué | Dirección |
+|-------|--------|-----------|
+| **biblia.md** | Estructura y contenido (qué etapas/work-orders/bugs/mejoras existen y su texto) | biblia → tablero (push) |
+| **Tablero** | Estado de ejecución (`To do` / `In progress` / `Done`) | tablero → biblia (pull) |
+
+Mapeo: etapa → tarea, work-order → subtarea. Las tres secciones vivas conviven en el mismo tablero y se distinguen por una **label** (`steps`, `bugs` o `mejoras`), que rutea el estado de vuelta a la sección correcta. La reconciliación es por un **ID de correlación** estable (no por el título). La config del vínculo vive en `biblia.md §11`; el estado de la última sync, en `CLAUDE.md`. El tablero nunca se vuelve fuente de verdad: es un espejo de ejecución.
+
+---
+
 ## 12. Ejemplo de flujo
 
 Así se ve el flujo típico al formalizar un proyecto:
@@ -245,6 +259,7 @@ AUDITORÍA    /anthropic-skills:berserk-arquitect auditá el diseño antes de co
 AVANCE       /anthropic-skills:berserk-arquitect cerré la etapa X, actualizá el estado
 MÓDULO       /anthropic-skills:berserk-arquitect generá un md reutilizable del flujo X
 SNAPSHOT     /anthropic-skills:berserk-arquitect pasame la biblia a docx
+INTEGRACIÓN  /anthropic-skills:berserk-arquitect integrá Notion (o ClickUp) en la biblia
 
 Leé primero:   CLAUDE.md (dónde vamos) → biblia.md (la verdad completa)
 Una sola fuente del estado:  CLAUDE.md → ESTADO ACTUAL

@@ -127,6 +127,23 @@ Cambios de calidad técnica que no son feature ni bug.
 
 ---
 
-## 11. CONTEXTO PARA NUEVAS SESIONES
+## 11. INTEGRACIÓN CON GESTOR DE TAREAS (opcional)
+
+> Config estable del vínculo con Notion / ClickUp. Solo presente si la integración está activa.
+> El estado mutable de la sincronización (última fecha, resultado) NO vive acá — vive en CLAUDE.md.
+
+- **Conector:** {Notion | ClickUp}
+- **Destino:** {database_id de Notion | list_id de ClickUp}
+- **Propiedad de correlación (ID biblia):** {"Ref Biblia" (texto)}
+- **Label de categoría:** `steps` | `bugs` | `mejoras` (define a qué sección viva pertenece la tarea)
+- **Mapeo de estados tablero → casilla biblia:**
+  - `Done` → `[x]`
+  - `In progress` / `To do` → `[ ]`
+- **Qué se sincroniza:** STEPS (label `steps`) · BUGS (label `bugs`) · MEJORAS TÉCNICAS (label `mejoras`)
+- **Alcance de autoridad:** biblia = estructura + contenido · tablero = estado de ejecución
+
+---
+
+## 12. CONTEXTO PARA NUEVAS SESIONES
 
 > "{Frase de arranque para pegar al iniciar una sesión nueva: qué es el proyecto, stack, fase actual, y 'leé CLAUDE.md y esta biblia antes de empezar'.}"

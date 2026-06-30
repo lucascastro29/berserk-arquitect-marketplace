@@ -29,6 +29,18 @@ Al iniciar una sesión sobre este repo:
 
 ---
 
+## ESTADO DE SINCRONIZACIÓN CON TABLERO
+
+> Solo si la integración Notion/ClickUp está activa (ver biblia.md § Integración con gestor de tareas).
+> Fuente única del estado de sync. No duplicar la config del vínculo acá: esa vive en la biblia.
+
+- **Último sync:** {AAAA-MM-DD HH:MM}
+- **Dirección del último sync:** bidireccional
+- **Resultado:** {N tareas creadas · N actualizadas · N estados leídos}
+- **Conflictos pendientes de resolución:** {ninguno | lista}
+
+---
+
 ## PROTOCOLO DE RETOMA (corte de contexto)
 
 Si estás por quedarte sin contexto o cortás la sesión:

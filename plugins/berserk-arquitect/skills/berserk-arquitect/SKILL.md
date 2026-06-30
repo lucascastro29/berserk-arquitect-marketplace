@@ -1,6 +1,6 @@
 ---
 name: berserk-arquitect
-description: Fase de arquitectura para un proyecto de desarrollo nuevo (o para formalizar uno existente). Interroga sin piedad la lógica de negocio y de software, y pare DOS archivos núcleo sin solapamiento — biblia.md (la verdad completa) y CLAUDE.md (entrada operativa + estado reanudable) — con fases, etapas y work-orders, más las secciones vivas de BUGS / STEPS / MEJORAS TÉCNICAS. Usá este skill SIEMPRE que el usuario arranque un proyecto nuevo, diga "armemos la biblia", "fase de arquitectura", "definamos la lógica de negocio", "generá el CLAUDE.md", "auditá el diseño antes de codear", o quiera dejar un proyecto listo para que un modelo más potente lo ejecute por etapas en una terminal. También se invoca para mantener biblia.md y CLAUDE.md sincronizados cuando se avanza una etapa, se cierra un bug o se registra una mejora.
+description: Fase de arquitectura para un proyecto de desarrollo nuevo (o para formalizar uno existente). Interroga sin piedad la lógica de negocio y de software, y pare DOS archivos núcleo sin solapamiento — biblia.md (la verdad completa) y CLAUDE.md (entrada operativa + estado reanudable) — con fases, etapas y work-orders, más las secciones vivas de BUGS / STEPS / MEJORAS TÉCNICAS. Usá este skill SIEMPRE que el usuario arranque un proyecto nuevo, diga "armemos la biblia", "fase de arquitectura", "definamos la lógica de negocio", "generá el CLAUDE.md", "auditá el diseño antes de codear", o quiera dejar un proyecto listo para que un modelo más potente lo ejecute por etapas en una terminal. También se invoca para mantener biblia.md y CLAUDE.md sincronizados cuando se avanza una etapa, se cierra un bug o se registra una mejora. Y se invoca cuando el usuario dice "integrá Notion en la biblia", "integrá ClickUp en la biblia", "conectá el tablero" o "sincronizá las etapas con Notion/ClickUp", para vincular la biblia con un gestor de tareas externo (opcional).
 ---
 
 # berserk-arquitect
@@ -20,6 +20,7 @@ Y, bajo demanda (no automáticamente):
 
 3. **Módulos de tarea** — archivos MD tipo `SKIN_GENERATOR.md` para flujos repetibles. El skill deja escrita la *regla* de cuándo crearlos; el usuario los dispara después.
 4. **Export docx** — un snapshot presentable de la biblia para devs o para leer cómodo. No es un archivo vivo.
+5. **Vínculo con un gestor de tareas (Notion / ClickUp)** — una conexión **bidireccional** entre la biblia y un tablero externo. La biblia empuja etapas, work-orders, bugs y mejoras como tareas; y lee de vuelta el estado de ejecución para marcar las casillas. La config del vínculo vive en biblia.md y el estado de la última sync vive en CLAUDE.md (ver Paso 7).
 
 ## La regla de oro: cero solapamiento = cero drift
 
@@ -110,6 +111,29 @@ Si el usuario lo pide ("pasame la biblia a docx", "una versión presentable para
 
 Importante: el docx **no es un cuarto archivo a sincronizar.** Es una foto con fecha. Tratarlo como archivo vivo devolvería el problema de drift. Para generarlo, usá la skill `docx`. Como todo derivado, **lleva el sello de frescura** (ver "Guardia de frescura"): fecha y última entrada de la biblia considerada.
 
+### Paso 7 — Integración con gestor de tareas (Notion / ClickUp) [opcional]
+
+Este paso es **opcional** y **bajo demanda**. La biblia funciona perfecto sin él. Se activa cuando el usuario dice algo como *"integrá Notion en la biblia"* o *"integrá ClickUp en la biblia"*. Soporta **Notion** o **ClickUp** indistintamente: la lógica es la misma, solo cambian las llamadas al conector. El objetivo es que el roadmap que ya vive en la biblia (etapas, work-orders) y sus secciones vivas (BUGS, MEJORAS TÉCNICAS) se reflejen en un tablero donde el equipo ejecuta, y que el avance de ese tablero vuelva a la biblia sin trabajo manual.
+
+**Principio rector: la biblia manda, el tablero ejecuta.** La integración es bidireccional pero **no simétrica**, y esa asimetría es lo que evita el drift: cada dato tiene un solo dueño.
+
+- **La biblia es dueña de la ESTRUCTURA y el CONTENIDO** (qué etapas existen, qué work-orders tiene cada una, el texto de cada tarea, qué bugs/mejoras hay y su descripción). Esto siempre fluye **biblia → tablero**. Si alguien crea o renombra tareas en el tablero, eso **no** vuelve a la biblia: se reporta como "deriva del tablero" y se ignora salvo que el usuario lo adopte explícitamente.
+- **El tablero es dueño del ESTADO DE EJECUCIÓN** (el status de cada tarea: `To do` / `In progress` / `Done`). Esto fluye **tablero → biblia**: al sincronizar, marca o desmarca las casillas `[ ]`/`[x]` de STEPS y actualiza el campo `estado` de BUGS y MEJORAS.
+
+**Mapeo de entidades.** Etapa → tarea (con sub-items); work-order → subtarea/checklist item. Las tres secciones vivas conviven en el mismo tablero y se distinguen por una **label** con tres valores fijos: `steps`, `bugs` o `mejoras`. Esa label es lo que define la categoría y rutea el estado de vuelta a la sección correcta de la biblia al hacer pull. Propiedades mínimas en cada tarea: **ID de correlación** (p.ej. `Etapa 2.2`, `MO-WO-03`, `BUG-007`, `MT-004`) — la llave por la que se reconcilia, nunca por el título; **label** (`steps`/`bugs`/`mejoras`); **estado**; **fase** (agrupador); **descripción** (dueño: biblia).
+
+**Dónde vive cada cosa (cero-solapamiento).** La config del vínculo (conector, ID de tablero/DB, mapeo de estados) es verdad estable → vive **solo en biblia.md** (sección "Integración con gestor de tareas", ver `assets/biblia.template.md`). El estado mutable de la sincronización (última fecha de sync, último resultado, conflictos pendientes) → vive **solo en CLAUDE.md** (bloque "Estado de sincronización con tablero", ver `assets/CLAUDE.template.md`).
+
+**Protocolo de sincronización** (lo que ejecuta el skill al recibir *"integrá / sincronizá con Notion/ClickUp"*):
+
+1. **Guardia de frescura primero.** El tablero es un artefacto derivado de la biblia. Antes de sincronizar, leé el sello (`Último sync` en CLAUDE.md) y escaneá STEPS/BUGS/MEJORAS por entradas con fecha posterior: eso te dice qué empujar.
+2. **Push (biblia → tablero):** por cada entrada de la biblia, buscá su tarea por el **ID de correlación**. Si no existe, creala (estado inicial `To do`/`[ ]`). Si existe y cambió en la biblia, actualizá título y cuerpo (la biblia manda). Si el usuario la marcó como eliminada, archivá/cerrá la tarea (no borres datos del tablero sin avisar).
+3. **Pull (tablero → biblia):** leé el **estado** de cada tarea y, **según su label**, escribilo en la sección viva que corresponde: `steps` → STEPS, `bugs` → BUGS, `mejoras` → MEJORAS TÉCNICAS. Solo se lee el campo de estado; título, descripción o tareas nuevas creadas en el tablero **no** se importan (se reportan como deriva del tablero).
+4. **Conflicto real** (la biblia y el tablero cambiaron el *mismo campo* desde el último sync): aplicá la regla de autoridad (biblia gana en estructura/contenido, tablero gana en estado). Si el choque es sobre estado *y* contenido a la vez, **frená y reportá** al usuario; no adivines.
+5. **Cerrá** actualizando el estado de sync en CLAUDE.md y, si el tablero quedó como derivado a entregar, su sello de frescura.
+
+**Notas por conector.** En **Notion** el tablero es una *database*, cada tarea es una *page*, el ID de correlación va en una propiedad de texto, los work-orders son sub-items, y la label es una propiedad *Select*/*Multi-select*. En **ClickUp** el tablero es una *List*, cada tarea es una *Task*, los work-orders son *Subtasks* o *checklist items*, el ID de correlación va en un *Custom Field* de texto, y la label es un *tag*. En ambos casos: antes de escribir un parser o automatizar, hacé una llamada de prueba al conector y mirá la forma real de la respuesta — los wrappers MCP renombran campos respecto de la API nativa.
+
 ## Mantener sincronizado (uso recurrente)
 
 Este skill también se usa cada vez que se avanza en el proyecto, dentro del chat donde se está trabajando. Cuando se completa un paso, se cierra un bug o se registra una mejora:
@@ -128,3 +152,4 @@ Y antes de actuar sobre cualquier artefacto **derivado** (brief, módulo, docx, 
 - No genera módulos de tarea por su cuenta (solo deja la regla; el usuario los dispara).
 - No mantiene el docx como archivo vivo (es snapshot bajo demanda).
 - No duplica contenido entre biblia.md y CLAUDE.md, nunca.
+- No convierte al tablero de Notion/ClickUp en fuente de verdad: el tablero es un espejo de ejecución, la biblia siempre manda estructura y contenido. Tampoco importa a la biblia tareas creadas a mano en el tablero (las reporta, no las adopta solo), ni sincroniza en segundo plano: cada sync es un acto explícito del usuario.
